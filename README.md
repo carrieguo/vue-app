@@ -84,6 +84,20 @@ var app = new Vue({
 });
 </script>
 ```
+## vue 实例
+> vue根实例通过new修饰符创建。实际上，vue中的每个组件也是一个vue实例.
+```js
+var vm = new Vue({});
+Vue.component('item', {
+    template: '<div>hello</div>'
+    })
+```
+> 通过控制台查看vm实例属性和方法，`$`开头的都是实例属性和方法
+
+## vue生命周期钩子
+> 生命周期函数是指vue实例在某一个时间点会自动执行的函数
+beforeCreate
+created
 
 ## 深入理解Vue组件
 > 使用`is`解决h5标签上的bug, 例如ul嵌套子组件li,select嵌套子组件<option>
