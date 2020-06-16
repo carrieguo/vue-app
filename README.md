@@ -89,6 +89,46 @@ var app = new Vue({
 </script>
 ```
 
+### 非父子组件间的传值
+
+1. 借助 vuex
+2. 使用发布订阅模式，总线（Bus）机制
+
+```html
+<div id="root">
+  <child content="点a全换成a" />
+  <child content="点b全换成b" />
+</div>
+<script>
+  Vue.prototype.bus = new Vue();
+  Vue.component('child', {
+    props: {
+      content: String
+    },
+    data: function() {
+      return {
+        selfContent: this.content
+      }
+    }.
+    template: '<div @click="handleClick">{{content}}</div>',
+    methods: {
+      handleClick: function() {
+        this.bus.$emit('change', this.selfContent);
+      }
+      mounted: funtion() {
+        var _this = this;
+        this.bus.$on('change', function(msg) {
+          _this.selfContent = msg;
+        })
+      }
+    }
+  })
+  var vm = new Vue({
+    el: '#root'
+  })
+</script>
+```
+
 ## vue 实例
 
 > vue 根实例通过 new 修饰符创建。实际上，vue 中的每个组件也是一个 vue 实例.
@@ -190,7 +230,7 @@ var vm = new Vue({
 ```html
 <!-- 内联样式，下面两种写法 -->
 <div :style="styleObj"></div>
-<div :style="[styleObj, {fontSize: '20px'}]">
+<div :style="[styleObj, {fontSize: '20px'}]"></div>
 <script>
     var vm = new Vue({
         el: "#app",
@@ -204,18 +244,136 @@ var vm = new Vue({
 
 ## vue 条件渲染
 
+```html
+<!-- v-if 和 v-else 必须挨着用 -->
+<div v-if="show">用户名： <input key="username" /></div>
+<div v-else>密码： <input key="password" /></div>
+<div v-show="show"></div>
+<div v-show="show === 'a'"></div>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            show: false，
+            display: 'a'
+        }
+    })
+```
+
+> vue 虚拟 DOM 中 diff 算法：在重新渲染页面时,会尽量尝试复用页面上已经存在的 DOM, 如果不想在渲染时复用，可以给`input`加 key 值。
+
+## vue 列表渲染
+
+### 数组渲染
+
+```html
+<div v-for="(item, index) of list" :key="item.id">
+  {{item.text}} --- {{index}}
+</div>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            list: [{
+              id: "2032",
+              text: "hello"
+            },{
+              id: "2031",
+              text: "world"
+            }
+            ]
+        }
+    })
+```
+
+> 为了提升循环显示的性能，会给每一个循环项加一个唯一的 key 值,key 值不建议使用 index 下标，建议使用 id，作为唯一标识.
+> 修改数组时，不能使用数组下标的方式修改数组，页面不会有响应式的变化；只能通过 vue 提供的数组变异方法来修改数组，页面会有响应式的变化。
+> `pop`, `push`, `shift`, `unshift`, `splice`, `sort`, `reverse`
+
+```js
+// 从下标1开始，删除一条，将其替换为id为333的记录
+vm.list.splice(1, 1, { id: "333", text: "abc" });
+```
+
+> 改变数组引用也能发生响应式的变化
+
+```js
+vm.list = [
+  {
+    id: "3232",
+    text: "new list",
+  },
+];
+```
+
+> `template` 模板占位符，不会被真正渲染到页面上
+
+```html
+<template v-for="(item, index) of list" :key="item.id">
+  <div>
+    {{item.text}} --- {{index}}
+  </div>
+  <span>{{item.text}}</span>
+  <template></template
+></template>
+```
+
+### 对象渲染
+
+```html
+<div v-for="(item, key, index) of userInfo" :key="item.id">
+  {{item}} --- {{key}} --- {{index}}
+</div>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            userInfo: {
+              name: "carrie guo",
+              age: 19
+            }
+        }
+    })
+```
+
+> 修改对象时，通过改引用，页面可以有响应式的变化。
+
+## vue 中的 Set 方法
+
+> 修改对象时，除了通过改引用，也可以通过 set 方法，使页面有响应式的变化。
+
+```js
+Vue.set(vm.userInfo, "address", "beijing");
+```
+
+> set 方法既是全局方法，又是实例方法,实例的\$set 和全局的 set 方法是一样的。
+
+```js
+vm.$set(vm.userInfo, "address", "beijing");
+```
+
+### 数组的 set 方法
+
+```js
+// 将数组的第一项值改为5
+Vue.set(vm.userInfo, 1, 5);
+vm.$set(vm.userInfo, 1, 5);
+```
+
 ## 深入理解 Vue 组件
 
-> 使用`is`解决 h5 标签上的 bug, 例如 ul 嵌套子组件 li,select 嵌套子组件<option>
+### is ref
+
+> 使用`is`解决 h5 标签上的 bug, 例如 ul 嵌套子组件 li,select 嵌套子组件,table 嵌套 tr<option>
 
 ```js
 //html dom
-<tr>
-  <td is="item"></td>
-</tr>;
+<tbody>
+  <tr is="item"></tr>
+</tbody>;
 //js 组件
 Vue.component("item", {
-  template: "<td> {{content}}</td>",
+  template: "<tr><td> {{content}}</td></tr>",
   data: function () {
     return {
       content: "是个傻妞",
@@ -226,11 +384,181 @@ Vue.component("item", {
 
 > 全局 new Vue 中定义 data 可以是对象，因为只渲染一次，不复用。子组件中定义`data` 必须是函数，因为会复用，函数作用域数据不会相互影响。
 > `ref`定义在 html 上获取原生 dom 节点。定义在子组件上，获取子组件的 vue 实例。
+
+```html
+<!-- ref定义在子组件上，获取子组件的 vue 实例-->
+<div id="app">
+  <div ref="hello" @click="handleClick"></div>
+  <counter ref="one" @change="handleChange"></counter>
+  <counter ref="two" @change="handleChange"></counter>
+  <div>{{total}}</div>
+</div>
+<script>
+  //js 组件
+  Vue.component("counter", {
+    template: '<div @click="handleClick">{{number}}</div>',
+    data: function () {
+      return {
+        number: 0,
+      };
+    },
+    methods: {
+      handleClick: function () {
+        this.number++;
+        this.$emit("change");
+      },
+    },
+  });
+
+  var vm = new Vue({
+    el: "#app",
+    data: {
+      total: 0,
+    },
+    method: {
+      handleChange: function () {
+        this.total = this.$refs.one.number + this.$refs.two.number;
+      },
+    },
+  });
+</script>
+```
+
 > 向子组件中绑定传值时`:a=""` 引号里是一个 js 表达式；`a=""`引号里是一个字符串。
 
 ### 单向数据流
 
 > 不允许子组件修改父组件传过来的值。原因：假如子组件接收改变的值是引用类型，可能其他组件也在使用这个值，这样会影响到其他组件。子组件可以在其 data 中新建一个变量，改变这个变量，而不影响父组件传过来的值。
+
+### 组件参数校验与非 props 特性
+
+```html
+<div id="root">
+  <child content="hello"></child>
+</div>
+<script>
+  Vue.component("child", {
+    props: {
+      // 子組件接收的值需为String类型
+      // content: String
+      // content: [Number, String]
+      content: {
+        type: String,
+        required: false,
+        default: "default value",
+        validator: function (value) {
+          return value.length > 5;
+        },
+      },
+    },
+    template: "<div>Child {{content}}</div>",
+  });
+  var vm = new Vue({
+    el: "#root",
+  });
+</script>
+```
+
+> 非 props 特性指的是父组件定义特性，子组件不接收，非 props 数值会展示在 dom 标签上。
+
+### 给组件绑定原生事件
+
+```html
+<!-- click是自定义事件 -->
+<child @click="handleClick"></child>
+
+<!-- click是原生事件 -->
+<child @click.native="handleClick"></child>
+```
+
+### 插槽
+
+```html
+<!-- 不使用插槽 -->
+<div id="root">
+  <child content="<p>hello</p>"></child>
+</div>
+<script>
+  Vue.component("child", {
+    props: ["content"],
+    template: "<div v-html="this.content"></div>",
+  });
+  var vm = new Vue({
+    el: "#root",
+  });
+</script>
+```
+
+```html
+<!-- 使用插槽 -->
+<div id="root">
+  <child>
+    <p>Hello</p>
+  </child>
+</div>
+<script>
+  Vue.component("child", {
+    template: "<div><slot>默认内容</slot></div>",
+  });
+  var vm = new Vue({
+    el: "#root",
+  });
+</script>
+```
+
+> 当子组件有一部分内容是根据父组件传递过来的 DOM 进行显示时，我们可以使用插槽
+
+```html
+<!-- 具名插槽 -->
+<div id="root">
+  <child content="<p>hello</p>">
+    <div class="header" slot="header">header</div>
+    <div class="footer" slot="footer">footer</div>
+  </child>
+</div>
+<script>
+  Vue.component("child", {
+    props: ["content"],
+    template: `<div>
+                <slot name="header">默认内容</slot>
+                <slot name="footer">默认内容</slot>
+              </div>`,
+  });
+  var vm = new Vue({
+    el: "#root",
+  });
+</script>
+```
+
+```html
+<!-- 作用域插槽 -->
+<div id="root">
+  <child>
+    <template slot-scope="childProps">
+      <li class="different-style">{{childProps.item}}</li>
+    </template>
+  </child>
+</div>
+<script>
+  Vue.component("child", {
+    data: function () {
+      return {
+        list: [1, 2, 3, 4],
+      };
+    },
+    template: `<div>
+                <ul>
+                  <slot v-for="item of list"
+                    :item=item></slot>
+                </ul>
+              </div>`,
+  });
+  var vm = new Vue({
+    el: "#root",
+  });
+</script>
+```
+> 作用域插槽 子组件复用，复用样式不同，用作用域插槽。
 
 ### 动态组件
 
