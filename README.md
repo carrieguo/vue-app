@@ -612,6 +612,7 @@ Vue.component("item", {
 ```
 
 ```html
+<!-- 使用Animate.css库，封装了 @keyframes -->
 <link
   href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1"
   rel="stylesheet"
@@ -623,6 +624,268 @@ Vue.component("item", {
   enter-active-class="animated tada"
   leave-active-class="animated bounceOutRight"
 ></transition>
+```
+
+## 在 vue 中同时使用过渡和动画
+
+```html
+<link
+  href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1"
+  rel="stylesheet"
+  type="text/css"
+/>
+<!-- 可以通过 appear attribute 设置节点在初始渲染的过渡 -->
+<transition
+  appear
+  name="custom-classes-transition"
+  enter-active-class="animated tada"
+  leave-active-class="animated bounceOutRight"
+  appear-active-class="animated tada"
+></transition>
+```
+
+### 动画时长以 transtion 或 @keyframe 为准
+
+> 在一些场景中，你需要给同一个元素同时设置两种过渡动效，比如 animation 很快的被触发并完成了，而 transition 效果还没结束。在这种情况中，你就需要使用 type attribute 并设置 animation 或 transition 来明确声明你需要 Vue 监听的类型。
+
+### 自定义动画播放时长
+
+> 你可以用 <transition> 组件上的 duration prop 定制一个显性的过渡持续时间 (以毫秒计)：
+
+```html
+<transition :duration="1000">...</transition>
+```
+
+> 你也可以定制进入和移出的持续时间：
+
+```html
+<transition :duration="{ enter: 500, leave: 800 }">...</transition>
+```
+
+## Vue 中的 JS 动画与 Velocity.js 的结合
+
+```html
+<!--
+Velocity 和 jQuery.animate 的工作方式类似，也是用来实现 JavaScript 动画的一个很棒的选择
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
+
+<div id="example-4">
+  <button @click="show = !show">
+    Toggle
+  </button>
+  <transition
+    v-on:before-enter="beforeEnter"
+    v-on:enter="enter"
+    v-on:leave="leave"
+    v-bind:css="false"
+  >
+    <p v-if="show">
+      Demo
+    </p>
+  </transition>
+</div>
+<script>
+  new Vue({
+    el: "#example-4",
+    data: {
+      show: false,
+    },
+    methods: {
+      beforeEnter: function (el) {
+        el.style.opacity = 0;
+        el.style.transformOrigin = "left";
+      },
+      enter: function (el, done) {
+        Velocity(el, { opacity: 1, fontSize: "1.4em" }, { duration: 300 });
+        Velocity(el, { fontSize: "1em" }, { complete: done });
+      },
+      leave: function (el, done) {
+        Velocity(
+          el,
+          { translateX: "15px", rotateZ: "50deg" },
+          { duration: 600 }
+        );
+        Velocity(el, { rotateZ: "100deg" }, { loop: 2 });
+        Velocity(
+          el,
+          {
+            rotateZ: "45deg",
+            translateY: "30px",
+            translateX: "30px",
+            opacity: 0,
+          },
+          { complete: done }
+        );
+      },
+    },
+  });
+</script>
+```
+
+## vue 中多个元素或组件的过渡
+
+### 多个元素的过渡
+
+```html
+<style>
+  .v-enter,
+  .v-leave-to {
+    opacity: 0;
+  }
+  .v-enter-active,
+  .v-leave-active {
+    transition: opacity 1s;
+  }
+</style>
+<div id="root">
+  <!-- 因为vue在动画中会尽量的复用DOM，为了避免这种复用问题所以要在多元素过渡时要标注不同的key。-->
+  <!-- 过渡模式mode -->
+  <transtion mode="out-in">
+    <div v-if="show" key="hello">Hello</div>
+    <div v-else key="bye">Bye</div>
+  </transtion>
+  <button @click="handleClick">toggle</button>
+</div>
+<script>
+  var vm = new Vue({
+    el: "#root",
+    data: {
+      show: false,
+    },
+    methods: {
+      handleClick: function () {
+        this.show = !this.show;
+      },
+    },
+  });
+</script>
+```
+
+### 多个组件的过渡
+
+```html
+<style>
+  .v-enter,
+  .v-leave-to {
+    opacity: 0;
+  }
+  .v-enter-active,
+  .v-leave-active {
+    transition: opacity 1s;
+  }
+</style>
+<div id="root">
+  <!-- 因为vue在动画中会尽量的复用DOM，为了避免这种复用问题所以要在多元素过渡时要标注不同的key。-->
+  <!-- 过渡模式mode -->
+  <transtion mode="out-in">
+    <component :is="type"></component>
+  </transtion>
+  <button @click="handleClick">toggle</button>
+</div>
+<script>
+  Vue.component("child", {
+    template: "<div>child</div>",
+  });
+  Vue.component("child-one", {
+    template: "<div>child-one</div>",
+  });
+  var vm = new Vue({
+    el: "#root",
+    data: {
+      type: 'child',
+    },
+    methods: {
+      handleClick: function() {
+        this.type = this.type ==== 'child' ? 'child-one' : 'child';
+      }
+    }
+  });
+</script>
+```
+
+## vue 中的列表过渡
+
+> div 的列表循环之后会变成多个 div，外层加上<transition-group>,相当于对列表中的每一项都加上了<transition>
+
+```html
+<style>
+  .v-enter,
+  .v-leave-to {
+    opacity: 0;
+  }
+  .v-enter-active,
+  .v-leave-active {
+    transition: opacity 1s;
+  }
+</style>
+<div id="root">
+  <transition-group>
+    <div v-for="(item, index) of list" :key="item.id">
+      {{item.title}}
+    </div>
+  <transition-group>
+  <button @click="handleBtnClick">Add</button>
+</div>
+<script>
+  var vm = new Vue({
+    el: "#root",
+    data: {
+      list: [],
+    },
+    methods: {
+      handleBtnClick: function () {
+        this.list.push({
+          id: count++,
+          title: "hello",
+        });
+      },
+    },
+  });
+</script>
+```
+
+## Vue 中的动画封装
+
+```html
+<div id="root">
+  <fade :show="show">
+    <div>hello</div>
+  </fade>
+  <fade :show="show">
+    <div>world</div>
+  </fade>
+  <button @click="handleClick">toggle</button>
+</div>
+<script>
+  Vue.component("fade", {
+    props: ["show"],
+    template: `<transtion @before-enter="handleBeforeEnter"
+                @enter="handleEnter">
+                <slot v-if="show"></slot>
+              </transtion>`,
+    methods: {
+      handleBeforeEnter: function (el) {
+        el.style.color = "red";
+      },
+      handleEnter: function (el, done) {
+        el.style.color = "green";
+        done();
+      },
+    },
+  });
+  var vm = new Vue({
+    el: "#root",
+    data: {
+      show: false,
+    },
+    methods: {
+      handleClick: function () {
+        this.show = !this.show;
+      },
+    },
+  });
+</script>
 ```
 
 ## 项目介绍
