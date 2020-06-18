@@ -558,6 +558,7 @@ Vue.component("item", {
   });
 </script>
 ```
+
 > 作用域插槽 子组件复用，复用样式不同，用作用域插槽。
 
 ### 动态组件
@@ -570,6 +571,59 @@ Vue.component("item", {
 ### v-once
 
 > 渲染普通的 HTML 元素在 Vue 中是非常快速的，但有的时候你可能有一个组件，这个组件包含了大量静态内容。在这种情况下，你可以在根元素上添加 v-once attribute 以确保这些内容只计算一次然后缓存起来
+
+## Vue 中 CSS 动画原理
+
+> 当一个元素包裹在`<transition>`标签内时，vue 会分析 css 样式，然后构建动画流程。元素从未显示到显示状态过程中，动画即将执行时，会向内部 div 增加两个 class，分别为`v-enter`和`v-enter-active`；当动画第一帧结束后，在动画第二帧时会移除`v-enter`,添加`v-enter-to`；执行到动画结束后，会移除`v-enter-active`和`v-enter-to`。
+
+```html
+<style>
+/* v-是缺省name的默认名字，可以设置name */
+.fade-enter{}
+</style>
+<transition>
+  <div name="fade"></div>
+</transttion>
+```
+
+[transition 原理](https://segmentfault.com/a/1190000015602918)
+
+## Vue 动画中使用 Animate.css 库
+
+```css
+/* 未引用Animate.css库时要自己写css样式 */
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+```
+
+```html
+<link
+  href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1"
+  rel="stylesheet"
+  type="text/css"
+/>
+<!-- 我们可以通过以下 attribute 来自定义过渡类名： -->
+<transition
+  name="custom-classes-transition"
+  enter-active-class="animated tada"
+  leave-active-class="animated bounceOutRight"
+></transition>
+```
 
 ## 项目介绍
 
