@@ -374,7 +374,7 @@ vm.$set(vm.userInfo, 1, 5);
 //js 组件
 Vue.component("item", {
   template: "<tr><td> {{content}}</td></tr>",
-  data: function () {
+  data: function() {
     return {
       content: "是个傻妞",
     };
@@ -397,13 +397,13 @@ Vue.component("item", {
   //js 组件
   Vue.component("counter", {
     template: '<div @click="handleClick">{{number}}</div>',
-    data: function () {
+    data: function() {
       return {
         number: 0,
       };
     },
     methods: {
-      handleClick: function () {
+      handleClick: function() {
         this.number++;
         this.$emit("change");
       },
@@ -416,7 +416,7 @@ Vue.component("item", {
       total: 0,
     },
     method: {
-      handleChange: function () {
+      handleChange: function() {
         this.total = this.$refs.one.number + this.$refs.two.number;
       },
     },
@@ -446,7 +446,7 @@ Vue.component("item", {
         type: String,
         required: false,
         default: "default value",
-        validator: function (value) {
+        validator: function(value) {
           return value.length > 5;
         },
       },
@@ -541,7 +541,7 @@ Vue.component("item", {
 </div>
 <script>
   Vue.component("child", {
-    data: function () {
+    data: function() {
       return {
         list: [1, 2, 3, 4],
       };
@@ -692,15 +692,15 @@ Velocity 和 jQuery.animate 的工作方式类似，也是用来实现 JavaScrip
       show: false,
     },
     methods: {
-      beforeEnter: function (el) {
+      beforeEnter: function(el) {
         el.style.opacity = 0;
         el.style.transformOrigin = "left";
       },
-      enter: function (el, done) {
+      enter: function(el, done) {
         Velocity(el, { opacity: 1, fontSize: "1.4em" }, { duration: 300 });
         Velocity(el, { fontSize: "1em" }, { complete: done });
       },
-      leave: function (el, done) {
+      leave: function(el, done) {
         Velocity(
           el,
           { translateX: "15px", rotateZ: "50deg" },
@@ -754,7 +754,7 @@ Velocity 和 jQuery.animate 的工作方式类似，也是用来实现 JavaScrip
       show: false,
     },
     methods: {
-      handleClick: function () {
+      handleClick: function() {
         this.show = !this.show;
       },
     },
@@ -865,10 +865,10 @@ Velocity 和 jQuery.animate 的工作方式类似，也是用来实现 JavaScrip
                 <slot v-if="show"></slot>
               </transtion>`,
     methods: {
-      handleBeforeEnter: function (el) {
+      handleBeforeEnter: function(el) {
         el.style.color = "red";
       },
-      handleEnter: function (el, done) {
+      handleEnter: function(el, done) {
         el.style.color = "green";
         done();
       },
@@ -880,7 +880,7 @@ Velocity 和 jQuery.animate 的工作方式类似，也是用来实现 JavaScrip
       show: false,
     },
     methods: {
-      handleClick: function () {
+      handleClick: function() {
         this.show = !this.show;
       },
     },
@@ -890,4 +890,22 @@ Velocity 和 jQuery.animate 的工作方式类似，也是用来实现 JavaScrip
 
 ## 项目介绍
 
-适应
+### 路由
+
+> <router-view>显示的是当前路由地址所对应的内容
+
+### 多页应用 vs 单页应用
+
+#### 多页应用
+
+> 每次页面跳转，后端返回新的 html
+> 优点：首屏时间快，只经历了一个 http 请求。seo 效果好。
+> 缺点：页面切换慢
+
+#### 单页应用
+
+> 单页面原理：前端完成页面切换，js 会感知 url 的变化后，js 动态的将当前页面内容清除掉，再渲染新的组件。
+> 优点：页面切换快。
+> 缺点：首屏事件慢，搜索引擎不识别 js 渲染生成的内容，seo 差。
+
+> 移动端点击事件延迟300毫秒 fastclick
