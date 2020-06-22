@@ -908,4 +908,8 @@ Velocity 和 jQuery.animate 的工作方式类似，也是用来实现 JavaScrip
 > 优点：页面切换快。
 > 缺点：首屏事件慢，搜索引擎不识别 js 渲染生成的内容，seo 差。
 
-> 移动端点击事件延迟300毫秒 fastclick
+> 移动端点击事件延迟 300 毫秒 fastclick
+
+## 项目实战 - 旅游网站首页开发
+
+### 首页 header 区域开发
