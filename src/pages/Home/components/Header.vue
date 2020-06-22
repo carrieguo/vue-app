@@ -22,11 +22,12 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+// @代表src目录，引入css前面要加~
 @import '~@/assets/styles/varibies.styl';
 .header
     display: flex;
     height: .86rem;
-    background: #00bcd4;
+    background: $bgColor;
     color: #fff
     .header-left
         width: .64rem;
@@ -45,10 +46,10 @@ export default {
         border-radius: .1rem;
         color: #ccc
     .header-right
-        width: 1.24 rem
+        width: 1.24rem
         float: right
         text-align: center
         .arrow-icon
-            // margin-left: 
+            margin-left: -0.4rem
             font-size: .24rem
 </style>
