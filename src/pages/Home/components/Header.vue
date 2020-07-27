@@ -26,7 +26,8 @@ export default {
 @import '~@/assets/styles/varibies.styl';
 .header
     display: flex;
-    height: .86rem;
+    line-height: .86rem;
+    height :.86rem;
     background: $bgColor;
     color: #fff
     .header-left
@@ -45,11 +46,14 @@ export default {
         background: #fff
         border-radius: .1rem;
         color: #ccc
+        .icon-font
+            display: inline-block
     .header-right
         width: 1.24rem
         float: right
         text-align: center
         .arrow-icon
-            margin-left: -0.4rem
+            display: inline-block
+            margin-left: -0.04rem
             font-size: .24rem
 </style>

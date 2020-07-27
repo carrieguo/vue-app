@@ -913,3 +913,4 @@ Velocity 和 jQuery.animate 的工作方式类似，也是用来实现 JavaScrip
 ## 项目实战 - 旅游网站首页开发
 
 ### 首页 header 区域开发
+> `vue-awesome-swiper` 快速构建轮播插件
