@@ -1,24 +1,23 @@
 <template>
-    <div class="header">
-        <div class="header-left">
-            <div class="iconfont back-icon">&#xe743;</div>
-        </div>
-        <div class="header-input">
-            <div class="iconfont">&#xe7b3;</div>
-                输入城市/景点/游玩主题
-            </div>
-        <div class="header-right">
-            城市
-            <div class="iconfont arrow-icon">&#xe6aa;</div>
-        </div>
+  <div class="header">
+    <div class="header-left">
+      <div class="iconfont back-icon">&#xe743;</div>
     </div>
+    <div class="header-input">
+      <div class="iconfont">&#xe7b3;</div>
+      输入城市/景点/游玩主题
+    </div>
+    <div class="header-right">
+      城市
+      <div class="iconfont arrow-icon">&#xe6aa;</div>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'HomeHeader'
-    
-}
+  name: "HomeHeader"
+};
 </script>
 
 <style lang="stylus" scoped>
